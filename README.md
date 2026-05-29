@@ -1,131 +1,83 @@
-# CST8918 Final Project - Weather Application on AKS
+# terraform-azure-aks-platform
+
+Production-grade Kubernetes platform on Azure, fully provisioned with Terraform and automated via GitHub Actions CI/CD.
+
+![HCL](https://img.shields.io/badge/Terraform-HCL-7B42BC?style=flat&logo=terraform)
+![Azure](https://img.shields.io/badge/Azure-AKS-0078D4?style=flat&logo=microsoftazure)
+![Kubernetes](https://img.shields.io/badge/Kubernetes-K8s-326CE5?style=flat&logo=kubernetes)
+![GitHub Actions](https://img.shields.io/badge/CI/CD-GitHub_Actions-2088FF?style=flat&logo=githubactions)
 
 ## Overview
-This project implements a Terraform-managed infrastructure on Azure for deploying a Remix Weather Application. The infrastructure includes AKS clusters, managed Redis DB, and uses GitHub Actions for automation.
 
-## Team Members
+This project provisions and manages a full cloud-native infrastructure on Azure for deploying a containerized weather application. Infrastructure is entirely defined as code using Terraform, with automated validation, planning, and deployment through GitHub Actions.
 
-| Name | Student ID | GitHub |
-|------|------------|--------|
-| Rhythm Sharma | 041131315 | [@rhythmsh05](https://github.com/rhythmsh05) |
-| Seerat Sawhney | 041107886 | [@seerat-sawhney](https://github.com/seerat-sawhney) |
-| Yogesh Bhatt | 041152861 | [@yogeshBhatt897](https://github.com/yogeshBhatt897) |
-| Daniyal Shahid | 041110791 | [@D1207-D](https://github.com/D1207-D) |
+## Architecture
 
-## Features
-
-- Real-time weather data using OpenWeather API
-- Redis caching for improved performance
-- SSL/TLS security
-- Prometheus and Grafana monitoring
-- Automated deployments using GitHub Actions
-- Infrastructure as Code using Terraform
-
-## Project Structure
-```
-├── .github/
-│   └── workflows/          # GitHub Actions workflow definitions
-└── infra/                  # Terraform infrastructure code
-    ├── backend/            # Azure Storage backend configuration
-    ├── network/            # Network infrastructure (VNet, subnets)
-    ├── aks/                # AKS cluster configurations
-    ├── redis/              # Redis cache configurations
-    └── weather_app/        # Weather application deployment
-```
+    .github/workflows/     - GitHub Actions: Terraform plan, validate, deploy
+    infra/backend/         - Azure Storage: Terraform remote state
+    infra/network/         - VNet, subnets, NSGs
+    infra/aks/             - AKS clusters (test + production)
+    infra/redis/           - Azure Cache for Redis
+    infra/weather_app/     - Application deployment manifests
+    k8s/                   - Kubernetes manifests
 
 ## Infrastructure Components
-- Azure Kubernetes Service (AKS) clusters for test and production
-- Azure Cache for Redis instances
-- Virtual Network with dedicated subnets
-- Azure Container Registry
-- Azure Storage for Terraform state
-- Prometheus & Grafana for monitoring
 
-## GitHub Actions Workflows
+| Component | Details |
+|---|---|
+| AKS | Kubernetes clusters for test and production environments |
+| Azure Redis Cache | Managed Redis for application caching |
+| Azure Container Registry | Private container image registry |
+| Virtual Network | Isolated VNet with dedicated subnets |
+| Terraform Remote State | Azure Storage backend for state management |
+| Monitoring | Prometheus and Grafana for metrics and dashboards |
 
-![GitHub Actions Workflows](docs/images/github-actions.png)
+## CI/CD Pipeline
 
-Our project uses several GitHub Actions workflows:
+GitHub Actions workflows enforce quality gates on every pull request:
 
-1. **Terraform Plan & Apply**: Manages infrastructure deployment
-2. **Container Build**: Builds and pushes Docker images
-3. **Kubernetes Deploy**: Deploys application to AKS
-4. **Monitoring Deploy**: Sets up Prometheus and Grafana
+- Terraform Format Check: enforces consistent HCL formatting
+- Terraform Validate: validates configuration syntax
+- TFLint Analysis: lints for Azure provider best practices
+- Infrastructure Plan Review: generates plan as PR comment
 
-## Getting Started
+Branch protection rules require all checks to pass before merge.
 
-### Prerequisites
+## Prerequisites
 
-- Azure subscription
+- Azure subscription with Contributor access
 - Azure CLI
-- Terraform
+- Terraform >= 1.1.0
 - kubectl
 - Node.js 16+
 
-### Environment Variables
+## Getting Started
 
-Create a `.env` file with:
+    git clone https://github.com/D1207-D/terraform-azure-aks-platform.git
+    cd terraform-azure-aks-platform/infra
+    terraform init
+    terraform plan
+    terraform apply
 
-```env
-AZURE_CLIENT_ID=
-AZURE_TENANT_ID=
-AZURE_SUBSCRIPTION_ID=
-REGISTRY_NAME=
-RESOURCE_GROUP=
-AKS_CLUSTER_NAME=
-GRAFANA_ADMIN_PASSWORD=
-OPENWEATHER_KEY=
-DOMAIN_NAME=
-```
+Retrieve AKS credentials:
 
-### Deployment Steps
+    az aks get-credentials --resource-group <resource-group> --name <cluster-name>
+    kubectl apply -f ../k8s/
 
-1. **Clone and Setup**
-   ```bash
-   git clone https://github.com/D1207-D/cst8918_final_project.git
-   cd cst8918_final_project
-   ```
+## Environment Variables
 
-2. **Initialize Terraform**
-   ```bash
-   cd infra
-   terraform init
-   ```
+    AZURE_CLIENT_ID=
+    AZURE_TENANT_ID=
+    AZURE_SUBSCRIPTION_ID=
+    REGISTRY_NAME=
+    RESOURCE_GROUP=
+    AKS_CLUSTER_NAME=
+    GRAFANA_ADMIN_PASSWORD=
+    OPENWEATHER_KEY=
 
-3. **Apply Infrastructure**
-   ```bash
-   terraform apply
-   ```
+## Contributors
 
-4. **Get AKS Credentials**
-   ```bash
-   az aks get-credentials --resource-group <resource-group> --name <cluster-name>
-   ```
-
-5. **Deploy Application**
-   ```bash
-   kubectl apply -f kubernetes/
-   ```
-
-## Development Workflow
-1. Create a new branch for your feature
-2. Make changes and commit
-3. Create a pull request
-4. Wait for reviews and CI checks to pass
-5. Merge after approval
-
-## Branch Protection Rules
-- Requires pull request before merging
-- Requires status checks to pass
-- Requires branches to be up to date
-- No self-review allowed
-
-## Status Checks
-- Terraform Format Check
-- Terraform Validation
-- TFLint Analysis
-- Infrastructure Plan Review
-
-## License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+- [@D1207-D](https://github.com/D1207-D)
+- [@rhythmsh05](https://github.com/rhythmsh05)
+- [@seerat-sawhney](https://github.com/seerat-sawhney)
+- [@yogeshBhatt897](https://github.com/yogeshBhatt897)
